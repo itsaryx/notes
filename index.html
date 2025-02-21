@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notepad Clone</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-dark.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="menu-bar">
+        <div class="menu-item">
+            <span>File</span>
+            <div class="menu-content">
+                <button onclick="newFile()"><i class="fas fa-file"></i> New <span class="shortcut">Ctrl+N</span></button>
+                <button onclick="openFile()"><i class="fas fa-folder-open"></i> Open <span class="shortcut">Ctrl+O</span></button>
+                <button onclick="saveFile()"><i class="fas fa-save"></i> Save <span class="shortcut">Ctrl+S</span></button>
+            </div>
+        </div>
+        <div class="menu-item">
+            <span>Edit</span>
+            <div class="menu-content">
+                <button onclick="document.execCommand('undo')">Undo <span class="shortcut">Ctrl+Z</span></button>
+                <button onclick="document.execCommand('redo')">Redo <span class="shortcut">Ctrl+Y</span></button>
+                <hr>
+                <button onclick="document.execCommand('cut')">Cut <span class="shortcut">Ctrl+X</span></button>
+                <button onclick="document.execCommand('copy')">Copy <span class="shortcut">Ctrl+C</span></button>
+                <button onclick="document.execCommand('paste')">Paste <span class="shortcut">Ctrl+V</span></button>
+            </div>
+        </div>
+        <div class="menu-item">
+            <span>View</span>
+            <div class="menu-content">
+                <button onclick="toggleWordWrap()">Word Wrap</button>
+                <button onclick="toggleLineNumbers()">Line Numbers</button>
+                <button onclick="toggleTheme()">Toggle Theme</button>
+            </div>
+        </div>
+        <div class="menu-item">
+            <span>Tab</span>
+            <div class="menu-content">
+                <button onclick="createTab()">New Tab</button>
+                <button onclick="renameTab(activeTab.id)">Rename Tab</button>
+                <button onclick="closeTab(activeTab.id)">Close Tab</button>
+            </div>
+        </div>
+        <div class="menu-item">
+            <span>Language</span>
+            <div class="menu-content">
+                <button onclick="setLanguage('javascript')"><i class="fab fa-js"></i> JavaScript</button>
+                <button onclick="setLanguage('html')"><i class="fab fa-html5"></i> HTML</button>
+                <button onclick="setLanguage('css')"><i class="fab fa-css3-alt"></i> CSS</button>
+                <button onclick="setLanguage('plaintext')"><i class="far fa-file-alt"></i> Plain Text</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <button id="fullscreen-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen (F11)">
+                <i class="fas fa-expand"></i>
+            </button>
+            <span class="language-indicator" onclick="document.querySelector('.menu-item:last-child').click()">
+                <i class="far fa-file-alt"></i> Plain Text
+            </span>
+        </div>
+        <div class="toolbar-group">
+            <button onclick="document.querySelector('.stats-panel').classList.toggle('visible')" title="Toggle Statistics (Ctrl+B)">
+                <i class="fas fa-chart-bar"></i>
+            </button>
+            <button onclick="toggleTheme()" title="Toggle Theme (Ctrl+K)">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="tab-bar">
+    </div>
+
+    <div class="find-dialog" id="findDialog">
+        <div class="find-header">
+            <span>Find & Replace</span>
+            <button onclick="toggleFindDialog()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="find-content">
+            <div class="find-row">
+                <input type="text" id="findInput" placeholder="Find">
+                <button onclick="findNext()">Find Next</button>
+            </div>
+            <div class="find-row">
+                <input type="text" id="replaceInput" placeholder="Replace">
+                <button onclick="replace()">Replace</button>
+                <button onclick="replaceAll()">Replace All</button>
+            </div>
+            <div class="find-options">
+                <label><input type="checkbox" id="matchCase"> Match case</label>
+                <label><input type="checkbox" id="wholeWord"> Whole word</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="editor-wrapper">
+        <div id="line-numbers"></div>
+        <div class="editor-container">
+            <textarea id="editor" spellcheck="true" wrap="off"></textarea>
+            <div class="zoom-controls">
+                <button onclick="zoom('out')" title="Zoom Out (Ctrl+-)">−</button>
+                <button onclick="zoom('in')" title="Zoom In (Ctrl+=)">+</button>
+            </div>
+        </div>
+        <div class="minimap"></div>
+        <div class="stats-panel"></div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-left">
+            <span id="char-count">Ln 1, Col 1</span>
+            <span id="selection-info"></span>
+            <span class="file-type-indicator">TXT</span>
+            <span class="auto-save-indicator">AutoSave enabled</span>
+        </div>
+        <div class="status-right">
+            <span class="status-item" onclick="document.querySelector('.stats-panel').classList.toggle('visible')" title="Toggle Statistics (Ctrl+B)">
+                <i class="fas fa-chart-bar"></i> Stats
+            </span>
+            <span id="encoding" class="status-item">UTF-8</span>
+            <span id="word-wrap-status" class="status-item">No Wrap</span>
+            <span id="zoom" class="status-item">100%</span>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-markup.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
