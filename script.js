@@ -1,3 +1,4 @@
+console.log("Some features are yet to be implemented.")
 const editor = document.getElementById('editor');
 
 const tabs = [{
